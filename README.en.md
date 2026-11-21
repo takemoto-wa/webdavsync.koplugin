@@ -1,0 +1,31 @@
+# WebDAV Sync Plugin (webdavsync.koplugin) v2.2
+
+A KOReader plugin for screenshot upload and multi-device reading progress sync, both using the WebDAV cloud storage already configured in KOReader.
+
+## Installation
+1. Copy the entire `webdavsync.koplugin` folder into `koreader/plugins/` on both devices, then restart KOReader.
+2. Configure a WebDAV account in KOReader's "Cloud storage" first (Nutstore is already configured on this device).
+
+## Feature 1: Screenshot Upload
+1. Go to **Tools** > **WebDAV Sync Plugin** > **Upload screenshots to cloud**.
+2. You can also bind a gesture: Settings > Gesture Manager > pick any gesture > action "Upload screenshots to cloud" (in the **General** section).
+3. Only new PNGs not yet recorded in `settings/webdavsync_upload.lua` are uploaded. Tap again any time to pick up the remaining ones.
+
+## Feature 2: Multi-device Reading Progress Sync
+1. **Tools** > **WebDAV Sync Plugin** > **Reading progress sync** submenu:
+   - Upload current reading progress
+   - Pull reading progress from cloud
+   - Auto-sync toggle (on by default)
+2. With auto-sync on: opening a book compares local and cloud progress and keeps whichever is further ahead; progress is uploaded 8 seconds after a page turn and when the book is closed.
+3. Gestures can also be bound to "Upload reading progress" and "Pull reading progress" (in the **Reader** section).
+
+## Sync Rules
+- Books are matched by document checksum (`partial_md5_checksum`, falling back to the MD5 of the filename); both devices must have the same file.
+- Progress records are stored at account `url` + `koreader-progress/<book-digest>.txt`, containing position, percentage, timestamp and device.
+- On pull: a manual pull always jumps to the cloud position (with a notice if the cloud record came from this device); an automatic pull compares local and cloud progress — paginated documents by page number, flow documents by percentage — and keeps whichever is further ahead. If local is ahead, it stays and is pushed back to the cloud so all devices converge on the fastest progress.
+- Paginated documents (PDF/DJVU) jump by page number; flow documents (EPUB, etc.) jump by XPointer.
+
+## General Notes
+- Address, username, password and remote directory are all read automatically from `settings/cloudstorage.lua`; the plugin does not store credentials itself.
+- If there are multiple WebDAV accounts, the one with the largest `order` is used; if there is only one, that one is used.
+- The auto-sync toggle is recorded in `settings/webdavsync_settings.lua`.
